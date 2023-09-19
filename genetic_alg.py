@@ -2,6 +2,7 @@ from local_search import local_search
 from split import split
 from individual import Individual
 
+
 class GeneticAlg:
     def __init__(self, max_iter: int, max_population_size: int):
         # algorithm parameters

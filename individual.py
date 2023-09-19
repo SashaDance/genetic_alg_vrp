@@ -1,3 +1,5 @@
+import random
+# from split import split
 
 # class representing the individual (solution)
 
@@ -6,18 +8,32 @@ class Individual:
         # list with all nodes which we will split later using split algorithm
         self.whole_route: list = []
         # routes for each vehicle (complete solution)
-        self.divided_routes: list = []
+        self.divided_routes: list = []  # 2d list
         # distance for the route of each vehicle
         self.vehicle_distances: list = []
+        # # loads that was taken by each vehicle to each node
+        # self.node_loads: list = []  # 2d list
         self.cost: float = 0  # cost of the solution
         # feasibility status of solution
         self.is_feasible: bool = False
         # parameters of the problem, class Params implemented in params.py
         self.params = params
-        # TODO: implement data structure which saves demand that
-        #  was taken by vehicle for each node
 
-    def evaluate_individual(self):
+        '''
+        len(self.divided_routes) == len(self.vehicle_distances) ==
+        == len(self.node_loads) == num of vehicle in the route
+        '''
+
+    def create_random_individual(self) -> None:
+        for i in range(1, self.params.num_of_nodes):
+            self.whole_route.append(i)
+        random.shuffle(self.whole_route)
+        # first node is always the depot
+        self.whole_route = [0] + self.whole_route
+        # split(self.whole_route)
+        # self.evaluate_individual()
+
+    def evaluate_individual(self) -> None:
         for i in range(len(self.divided_routes)):
             distance = 0
             curr_route = self.divided_routes[i]
