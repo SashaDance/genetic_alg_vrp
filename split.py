@@ -54,8 +54,6 @@ def split(individual: Individual, params: Params) -> list[list[int]]:
             if load > params.vehicle_capacity:
                 break
 
-    print(potential)
-
     # extraction of solution
     solution = []
 
@@ -63,7 +61,7 @@ def split(individual: Individual, params: Params) -> list[list[int]]:
     while j != 0:
         route = [0]  # first node is always a depot
         for k in range(pred[j] + 1, j + 1):
-            route.append(k)
+            route.append(indiv.giant_tour[k])
         route.append(0)  # last node is also a depot
 
         j = pred[j]
