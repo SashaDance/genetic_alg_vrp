@@ -1,9 +1,35 @@
 from params import Params
+from individual import Individual
+
+
+# initialization of list of dicts that we will need to use in split function
+def initialize_split_list(individual: Individual,
+                          params: Params) -> list[dict]:
+    # initialization
+    split_dict = {'demand': 0, 'dist_to_depot': 0, 'dist_to_next': 0}
+    split_list = [split_dict for i in range(params.num_of_clients + 1)]
+
+    # the 0'th element corresponding to the depot
+    for i in range(1, params.num_of_clients + 1):
+        split_dict = {'demand': 0, 'dist_to_depot': 0, 'dist_to_next': 0}
+        node = individual.giant_tour[i]
+        if i != params.num_of_clients:
+            next_node = individual.giant_tour[i + 1]
+            split_dict['dist_to_next'] = params.distance_matrix[node][next_node]
+        else:
+            split_dict['dist_to_next'] = -1
+
+        split_dict['demand'] = params.demands[node]
+        split_dict['dist_to_depot'] = params.distance_matrix[node][0]
+        split_list[i] = split_dict
+
+    return split_list
+
 
 # this function splits whole route to sub routes for each vehicle
-def split(params):
-
+def split(individual: Individual, params: Params) -> list[list[int]]:
     # initialization of the structures
+    destination_info = initialize_split_list(individual, params)
     potential = [1e30 for _ in range(params.num_of_clients + 1)]
     pred = [-1 for _ in range(params.num_of_clients + 1)]
 
@@ -14,23 +40,21 @@ def split(params):
     for i in range(1, params.num_of_clients + 1):
         load = 0
         for j in range(i, params.num_of_clients + 1):
-            load += params.demands[j]
+            load += destination_info[j]['demand']
             if j == i:
-                cost = (params.distance_matrix[0][j] +
-                        params.distance_matrix[j][0])
+                cost = 2 * destination_info[j]['dist_to_depot']
             else:
-                cost = (cost - params.distance_matrix[j-1][0] +
-                        params.distance_matrix[j-1][j] +
-                        params.distance_matrix[j][0])
+                cost = (cost - destination_info[j - 1]['dist_to_depot'] +
+                        destination_info[j - 1]['dist_to_next'] +
+                        destination_info[j]['dist_to_depot'])
             if (potential[i - 1] + cost < potential[j] and
-                load <= params.vehicle_capacity):
+                    load <= params.vehicle_capacity):
                 potential[j] = potential[i - 1] + cost
                 pred[j] = i - 1
             if load > params.vehicle_capacity:
                 break
 
     print(potential)
-    print(pred)
 
     # extraction of solution
     solution = []
@@ -45,7 +69,8 @@ def split(params):
         j = pred[j]
         solution.append(route)
 
-    print(solution)
+    return solution
+
 
 distance_matrix = [
     [0, 20, 25, 30, 40, 35],
@@ -59,4 +84,8 @@ vehicle_capacity = 10
 demands = [0, 5, 4, 4, 2, 7]
 time_limit = 0
 params = Params(distance_matrix, vehicle_capacity, demands, time_limit)
-split(params)
+
+indiv = Individual(params)
+indiv.giant_tour = [0, 1, 2, 3, 4, 5]
+
+print(split(indiv, params))
