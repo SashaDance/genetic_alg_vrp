@@ -39,7 +39,9 @@ def split(individual: Individual, params: Params) -> list[list[int]]:
     cost = 0
     for i in range(1, params.num_of_clients + 1):
         load = 0
+        len_of_route = 0
         for j in range(i, params.num_of_clients + 1):
+            len_of_route += 1
             load += destination_info[j]['demand']
             if j == i:
                 cost = 2 * destination_info[j]['dist_to_depot']
@@ -48,7 +50,8 @@ def split(individual: Individual, params: Params) -> list[list[int]]:
                         destination_info[j - 1]['dist_to_next'] +
                         destination_info[j]['dist_to_depot'])
             if (potential[i - 1] + cost < potential[j] and
-                    load <= params.vehicle_capacity):
+                    load <= params.vehicle_capacity and
+                    len_of_route < 4):
                 potential[j] = potential[i - 1] + cost
                 pred[j] = i - 1
             if load > params.vehicle_capacity:
@@ -61,7 +64,7 @@ def split(individual: Individual, params: Params) -> list[list[int]]:
     while j != 0:
         route = [0]  # first node is always a depot
         for k in range(pred[j] + 1, j + 1):
-            route.append(indiv.giant_tour[k])
+            route.append(individual.giant_tour[k])
         route.append(0)  # last node is also a depot
 
         j = pred[j]
@@ -70,20 +73,20 @@ def split(individual: Individual, params: Params) -> list[list[int]]:
     return solution
 
 
-distance_matrix = [
-    [0, 20, 25, 30, 40, 35],
-    [20, 0, 10, 0, 0, 0],
-    [25, 10, 0, 30, 0, 0],
-    [30, 0, 30, 0, 25, 0],
-    [40, 0, 0, 25, 0, 15],
-    [35, 0, 0, 0, 15, 0]
-]
-vehicle_capacity = 10
-demands = [0, 5, 4, 4, 2, 7]
-time_limit = 0
-params = Params(distance_matrix, vehicle_capacity, demands, time_limit)
-
-indiv = Individual(params)
-indiv.giant_tour = [0, 1, 2, 3, 4, 5]
-
-print(split(indiv, params))
+# distance_matrix = [
+#     [0, 20, 25, 30, 40, 35],
+#     [20, 0, 10, 0, 0, 0],
+#     [25, 10, 0, 30, 0, 0],
+#     [30, 0, 30, 0, 25, 0],
+#     [40, 0, 0, 25, 0, 15],
+#     [35, 0, 0, 0, 15, 0]
+# ]
+# vehicle_capacity = 10
+# demands = [0, 5, 4, 4, 2, 7]
+# time_limit = 0
+# params = Params(distance_matrix, vehicle_capacity, demands, time_limit)
+#
+# indiv = Individual(params)
+# indiv.giant_tour = [0, 1, 2, 3, 4, 5]
+#
+# print(split(indiv, params))

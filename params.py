@@ -3,7 +3,7 @@
 
 class Params:
     def __init__(self,
-                 distance_matrix: list,
+                 distance_matrix: list[list],
                  vehicle_capacity: float,
                  demands: list,
                  route_time_limit: float):
@@ -11,4 +11,4 @@ class Params:
         self.vehicle_capacity = vehicle_capacity
         self.demands = demands  # firs demand is always 0
         self.route_time_limit = route_time_limit
-        self.num_of_nodes = len(demands)
+        self.num_of_clients = len(demands) - 1

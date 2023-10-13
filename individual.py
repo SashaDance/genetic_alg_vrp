@@ -6,9 +6,9 @@ import random
 class Individual:
     def __init__(self, params):
         # list with all nodes which we will split later using split algorithm
-        self.whole_route: list = []
+        self.giant_tour: list = []
         # routes for each vehicle (complete solution)
-        self.divided_routes: list = []  # 2d list
+        self.divided_routes: list[list] = []
         # distance for the route of each vehicle
         self.vehicle_distances: list = []
         # # loads that was taken by each vehicle to each node
@@ -25,11 +25,11 @@ class Individual:
         '''
 
     def create_random_individual(self) -> None:
-        for i in range(1, self.params.num_of_nodes):
-            self.whole_route.append(i)
-        random.shuffle(self.whole_route)
+        for i in range(1, self.params.num_of_clients + 1):
+            self.giant_tour.append(i)
+        random.shuffle(self.giant_tour)
         # first node is always the depot
-        self.whole_route = [0] + self.whole_route
+        self.giant_tour = [0] + self.giant_tour
         # split(self.whole_route)
         # self.evaluate_individual()
 
