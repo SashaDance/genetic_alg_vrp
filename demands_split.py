@@ -1,8 +1,7 @@
 from copy import deepcopy
-from get_data import GetData
 
 
-def split_demands(ff_id: int,
+def split_demands(data,
                   vehicle_capacity: int = 54) -> tuple[list[list], list]:
 
     """
@@ -28,14 +27,16 @@ def split_demands(ff_id: int,
         new_demands = [0, 54, 14, 2]
 
     """
-    data = GetData(ff_id)
     distance_matrix = data.get_distance_matrix()
     demands = data.get_demands()
 
     new_distance_matrix = deepcopy(distance_matrix)
     new_demands = deepcopy(demands)
     for i, demand in enumerate(demands):
+        iteration = 0
         while demand > vehicle_capacity:
+            iteration += 1
+            sc = data.ind_to_sc_map[i]
             # adding new row to distance matrix
             new_row = deepcopy(new_distance_matrix[i]) + [0]
             new_distance_matrix.append(new_row)
@@ -49,6 +50,11 @@ def split_demands(ff_id: int,
                 new_demands.append(demand)
             else:
                 new_demands.append(54)
+            # updating index to sc map, like '110-52-1'
+            data.ind_to_sc_map[len(new_distance_matrix) - 1] = (
+                f'{data.ff}-{sc}-{iteration}'
+            )
+
 
     return new_distance_matrix, new_demands
 
