@@ -14,7 +14,7 @@ class GetData:
         with open('Data/demands.pickle', 'rb') as f:
             self.demands_dict = pickle.load(f)
 
-    def get_distance_matrix(self, ff: int) -> list:
+    def get_distance_matrix(self, ff: int) -> list[list]:
         sort_centers = self.demands_dict[ff].keys()
         # initializing the array with n + 1 rows
         # where n is number of sort centers and 1 is ff
@@ -60,7 +60,8 @@ class GetData:
 
         return demands
 
-    def print_matrix(self, matrix: list) -> None:
+    @staticmethod
+    def print_matrix(matrix: list) -> None:
 
         if not all(isinstance(row, list) for row in matrix):
             raise ValueError("Input must be a 2D list (matrix).")

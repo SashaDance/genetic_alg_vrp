@@ -1,14 +1,13 @@
+from dataclasses import dataclass
 
-# parameters of the vrp problem
 
+@dataclass
 class Params:
-    def __init__(self,
-                 distance_matrix: list[list],
-                 vehicle_capacity: float,
-                 demands: list,
-                 route_time_limit: float):
-        self.distance_matrix = distance_matrix  # 0 node is the depot
-        self.vehicle_capacity = vehicle_capacity
-        self.demands = demands  # firs demand is always 0
-        self.route_time_limit = route_time_limit
-        self.num_of_clients = len(demands) - 1
+    # parameters of the vrp problem
+    distance_matrix: list[list]
+    vehicle_capacity: float
+    demands: list
+    route_time_limit: float
+
+    def __post_init__(self):
+        self.num_of_clients = len(self.demands) - 1
