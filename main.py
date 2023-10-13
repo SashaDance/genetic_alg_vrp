@@ -1,15 +1,13 @@
 from params import Params
-from data.get_data import *
+from get_data import GetData
 from individual import Individual
 from local_search import solve
 from split import split
 import sys
 
-data = dict()
 ff_id = 110
-data_class = GetData()
-distance_matrix = data_class.get_distance_matrix(ff_id)
-demands = data_class.get_demands(ff_id)
+data = GetData(ff_id)
+distance_matrix, demands = data.get_data()
 vehicle_capacity = 54
 
 params = Params(distance_matrix, vehicle_capacity, demands, 0)
@@ -37,7 +35,7 @@ for i, route_ in enumerate(indiv.divided_routes, start=1):
     route_changed_sc_indices = dict()
     route_demands = 0
     for vertex in route:
-        sc = data_class.sc_indices[vertex]
+        sc = data.ind_to_sc_map[vertex]
         if isinstance(sc, str):
             ff, sc, id = sc.split('-')
         load = demands[vertex]
