@@ -68,8 +68,6 @@ class GetData:
 
         return distance_matrix, demands
 
-
-
     @staticmethod
     def print_matrix(matrix: list) -> None:
 
