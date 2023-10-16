@@ -1,81 +1,108 @@
-from ortools.constraint_solver import routing_enums_pb2
-from ortools.constraint_solver import pywrapcp
+import random
+from get_data import GetData
+
+"""
+implementation of Variable Neighborhood Search
+This algorithm basicly reshuffles the giant tour to minimize its distance
+Giant tour is just an array of all nodes that needed are needed to be visited
+in our case it is a list of all sort centers
+"""
 
 
-def create_data_model(params):
-    """Stores the data for the problem."""
-    data = {}
-    data["distance_matrix"] = params.distance_matrix
-    data["num_vehicles"] = 1
-    data["depot"] = 0
-    return data
+def calc_distance(giant_tour: list[int],
+                  distance_matrix: list[list[float]]) -> float:
+    """
+    just calculating the distance of the route
+
+    :param giant_tour:
+    :param distance_matrix:
+    :return: distance of that route
+    """
+    sum_ = 0
+
+    for i in range(len(giant_tour) - 1):
+        cur_node = giant_tour[i]
+        next_node = giant_tour[i + 1]
+        sum_ += distance_matrix[cur_node][next_node]
+
+    return sum_
 
 
-def print_solution(manager, routing, solution):
-    """Prints solution on console."""
-    print(f"Objective: {solution.ObjectiveValue()} miles")
-    index = routing.Start(0)
-    plan_output = "Route for vehicle 0:\n"
-    route_distance = 0
-    while not routing.IsEnd(index):
-        plan_output += f" {manager.IndexToNode(index)} ->"
-        previous_index = index
-        index = solution.Value(routing.NextVar(index))
-        route_distance += routing.GetArcCostForVehicle(previous_index, index, 0)
-    plan_output += f" {manager.IndexToNode(index)}\n"
-    print(plan_output)
-    plan_output += f"Route distance: {route_distance}miles\n"
+def two_opt(giant_tour: list[int], i: int, j: int) -> list[int]:
+    """
+    this a 2-opt heuristic defining the neighborhood
+    you just select two edges and reversing the route between them
+
+    :param giant_tour:
+    :param i:
+    :param j:
+    :return: processed route
+    """
+    new_tour = giant_tour[:i] + giant_tour[i:j + 1][::-1] + giant_tour[j + 1:]
+
+    return new_tour
 
 
-def solve(params) -> list:
-    """Entry point of the program."""
-    # Instantiate the data problem.
-    data = create_data_model(params)
+def local_search(giant_tour: list[int],
+                 distance_matrix: list[list[float]]) -> list[int]:
+    """
+    searching for the best solution in the neighborhood of giant_tour
+    By neighborhood we understand routes that can be obtained with two-opt
+    doing operator on giant_tour
 
-    # Create the routing index manager.
-    manager = pywrapcp.RoutingIndexManager(
-        len(data["distance_matrix"]), data["num_vehicles"], data["depot"]
-    )
+    :param giant_tour:
+    :param distance_matrix:
+    :return: local optimum in the neighborhood
+    """
+    better_solution_found = True
+    while better_solution_found:
+        better_solution_found = False
+        for i in range(1, len(giant_tour) - 1):
+            for j in range(i + 1, len(giant_tour)):
+                if j - i == 1:
+                    continue
+                new_tour = two_opt(giant_tour, i, j)
+                if (calc_distance(new_tour, distance_matrix) <
+                        calc_distance(giant_tour, distance_matrix)):
+                    giant_tour = new_tour
+                    better_solution_found = True
 
-    # Create Routing Model.
-    routing = pywrapcp.RoutingModel(manager)
+    return giant_tour
 
 
-    def distance_callback(from_index, to_index):
-        """Returns the distance between the two nodes."""
-        # Convert from routing variable Index to distance matrix NodeIndex.
-        from_node = manager.IndexToNode(from_index)
-        to_node = manager.IndexToNode(to_index)
-        return data["distance_matrix"][from_node][to_node]
+def shaking(giant_tour: list[int], k: int) -> list[int]:
+    """
+    this adds randomness to the algorithm to 'escape' local optimum
+    :param giant_tour:
+    :param k:
+    :return: shaked tour
+    """
+    new_tour = giant_tour.copy()
+    for _ in range(k):
+        i, j = sorted(random.sample(range(1, len(giant_tour) - 1), 2))
+        new_tour = two_opt(new_tour, i, j)
 
-    transit_callback_index = routing.RegisterTransitCallback(distance_callback)
+    return new_tour
 
-    # Define cost of each arc.
-    routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
 
-    # Setting first solution heuristic.
-    search_parameters = pywrapcp.DefaultRoutingSearchParameters()
-    search_parameters.first_solution_strategy = (
-        routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
-    )
+def vns(giant_tour: list[int], distance_matrix: list[list[float]],
+        max_iter=100) -> list[int]:
+    """
+    the main alg
+    :param giant_tour:
+    :param distance_matrix:
+    :param max_iter:
+    :return: optimized giant tour
+    """
+    i = 1
+    while i <= max_iter:
+        k_tour = shaking(giant_tour, i)
+        new_tour = local_search(k_tour, distance_matrix)
+        if (calc_distance(new_tour, distance_matrix) <
+                calc_distance(giant_tour, distance_matrix)):
+            giant_tour = new_tour
+            i = 1
+        else:
+            i += 1
 
-    # Solve the problem.
-    solution = routing.SolveWithParameters(search_parameters)
-
-    def get_routes(solution, routing, manager):
-        """Get vehicle routes from a solution and store them in an array."""
-        # Get vehicle routes and store them in a two dimensional array whose
-        # i,j entry is the jth location visited by vehicle i along its route.
-        routes = []
-        for route_nbr in range(routing.vehicles()):
-            index = routing.Start(route_nbr)
-            route = [manager.IndexToNode(index)]
-            while not routing.IsEnd(index):
-                index = solution.Value(routing.NextVar(index))
-                route.append(manager.IndexToNode(index))
-            routes.append(route)
-        return routes
-
-    routes = get_routes(solution, routing, manager)
-
-    return routes[0][:-1]
+    return giant_tour
