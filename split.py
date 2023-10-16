@@ -2,9 +2,15 @@ from params import Params
 from individual import Individual
 
 
-# initialization of list of dicts that we will need to use in split function
 def initialize_split_list(individual: Individual,
                           params: Params) -> list[dict]:
+    """
+    initialization of list of dicts that we will need to use in split function
+    that is a some kind of data structure
+    :param individual:
+    :param params:
+    :return:
+    """
     # initialization
     split_dict = {'demand': 0, 'dist_to_depot': 0, 'dist_to_next': 0}
     split_list = [split_dict for i in range(params.num_of_clients + 1)]
@@ -15,7 +21,8 @@ def initialize_split_list(individual: Individual,
         node = individual.giant_tour[i]
         if i != params.num_of_clients:
             next_node = individual.giant_tour[i + 1]
-            split_dict['dist_to_next'] = params.distance_matrix[node][next_node]
+            split_dict['dist_to_next'] = params.distance_matrix[node][
+                next_node]
         else:
             split_dict['dist_to_next'] = -1
 
@@ -26,8 +33,13 @@ def initialize_split_list(individual: Individual,
     return split_list
 
 
-# this function splits whole route to sub routes for each vehicle
 def split(individual: Individual, params: Params) -> list[list[int]]:
+    """
+    this function splits whole route to sub routes for each vehicle
+    :param individual:
+    :param params:
+    :return: split route
+    """
     # initialization of the structures
     destination_info = initialize_split_list(individual, params)
     potential = [1e30 for _ in range(params.num_of_clients + 1)]
@@ -72,21 +84,4 @@ def split(individual: Individual, params: Params) -> list[list[int]]:
 
     return solution
 
-
-# distance_matrix = [
-#     [0, 20, 25, 30, 40, 35],
-#     [20, 0, 10, 0, 0, 0],
-#     [25, 10, 0, 30, 0, 0],
-#     [30, 0, 30, 0, 25, 0],
-#     [40, 0, 0, 25, 0, 15],
-#     [35, 0, 0, 0, 15, 0]
-# ]
-# vehicle_capacity = 10
-# demands = [0, 5, 4, 4, 2, 7]
-# time_limit = 0
-# params = Params(distance_matrix, vehicle_capacity, demands, time_limit)
-#
-# indiv = Individual(params)
-# indiv.giant_tour = [0, 1, 2, 3, 4, 5]
-#
-# print(split(indiv, params))
+# TODO: use dataclass instead of initialize_split_list

@@ -1,5 +1,6 @@
 import random
 from get_data import GetData
+from params import Params
 
 """
 implementation of Variable Neighborhood Search
@@ -85,14 +86,14 @@ def shaking(giant_tour: list[int], k: int) -> list[int]:
     return new_tour
 
 
-def vns(giant_tour: list[int], distance_matrix: list[list[float]],
-        max_iter=100) -> list[int]:
+def vns(params: Params, max_iter=100) -> list[int]:
+    distance_matrix = params.distance_matrix
+    giant_tour = list(range(params.num_of_clients + 1))
     """
     the main alg
-    :param giant_tour:
-    :param distance_matrix:
-    :param max_iter:
-    :return: optimized giant tour
+    :param params: look at the Params class
+    :param max_iter: 
+    :return: optimized giant tou
     """
     i = 1
     while i <= max_iter:

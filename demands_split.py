@@ -26,6 +26,9 @@ def split_demands(data,
                               [1 | 0 | 5 | 0]
         new_demands = [0, 54, 14, 2]
 
+    :param data:
+    :param vehicle_capacity:
+    :return: new distance matrix and demands of the divided route
     """
     distance_matrix = data.get_distance_matrix()
     demands = data.get_demands()
@@ -54,7 +57,6 @@ def split_demands(data,
             data.ind_to_sc_map[len(new_distance_matrix) - 1] = (
                 f'{data.ff}-{sc}-{iteration}'
             )
-
 
     return new_distance_matrix, new_demands
 
