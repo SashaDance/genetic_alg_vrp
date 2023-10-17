@@ -47,12 +47,12 @@ def split_demands(data,
             for ind, row in enumerate(new_distance_matrix[:-1]):
                 row.append(new_row[ind])
             # adding new demand
-            new_demands[i] = 54
-            demand = demand - 54
-            if demand <= 54:
+            new_demands[i] = vehicle_capacity
+            demand = demand - vehicle_capacity
+            if demand <= vehicle_capacity:
                 new_demands.append(demand)
             else:
-                new_demands.append(54)
+                new_demands.append(vehicle_capacity)
             # updating index to sc map, like '110-52-1'
             data.ind_to_sc_map[len(new_distance_matrix) - 1] = (
                 f'{data.ff}-{sc}-{iteration}'
