@@ -18,7 +18,7 @@ class GeneticAlg:
     def crossover(self, parent_1: list, parent_2: list) -> list:
         pass
 
-    def select_parents(self) -> (list, list):
+    def select_parents(self) -> tuple[list, list]:
         pass
 
     def add_individual(self, offspring: list) -> None:

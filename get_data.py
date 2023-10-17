@@ -59,14 +59,11 @@ class GetData:
 
         return demands
 
-    def get_data(self) -> tuple[list[list], list]:
+    def get_data(self) -> tuple[list[list], list, dict]:
 
-        distance_matrix = self.get_distance_matrix()
-        demands = self.get_demands()
+        distance_matrix, demands, ind_to_sc_map = split_demands(data=self)
 
-        distance_matrix, demands = split_demands(self)
-
-        return distance_matrix, demands
+        return distance_matrix, demands, ind_to_sc_map
 
     @staticmethod
     def print_matrix(matrix: list) -> None:

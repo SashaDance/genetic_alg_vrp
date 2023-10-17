@@ -1,8 +1,9 @@
 from copy import deepcopy
 
 
-def split_demands(data,
-                  vehicle_capacity: int = 54) -> tuple[list[list], list]:
+def split_demands(data=None, demands: list[float] = None,
+                  distance_matrix: list[list[float]] = None,
+                  vehicle_capacity: int = 54) -> tuple[list[list], list, dict]:
 
     """
     Our Algorithm involves this constraint:
@@ -27,11 +28,27 @@ def split_demands(data,
         new_demands = [0, 54, 14, 2]
 
     :param data:
+    :param demands:
+    :param distance_matrix:
     :param vehicle_capacity:
-    :return: new distance matrix and demands of the divided route
+    :return:
     """
-    distance_matrix = data.get_distance_matrix()
-    demands = data.get_demands()
+    # checking if user wants to get solution from ff_id or
+    # wants to write his own distance matrix and demands
+    flag = False
+
+    if data is not None:
+        distance_matrix = data.get_distance_matrix()
+        demands = data.get_demands()
+        flag = True
+    elif distance_matrix is not None and demands is not None:
+        ind_to_sc_map = {}
+        for i in range(len(demands)):
+            ind_to_sc_map[i] = i
+    else:
+        raise ValueError('Incorrect data input')
+
+    # ind_to_sc_map is for printing solution with the right vertex indices
 
     new_distance_matrix = deepcopy(distance_matrix)
     new_demands = deepcopy(demands)
@@ -39,7 +56,10 @@ def split_demands(data,
         iteration = 0
         while demand > vehicle_capacity:
             iteration += 1
-            sc = data.ind_to_sc_map[i]
+            if flag:
+                sc = data.ind_to_sc_map[i]
+            else:
+                sc = ind_to_sc_map[i]
             # adding new row to distance matrix
             new_row = deepcopy(new_distance_matrix[i]) + [0]
             new_distance_matrix.append(new_row)
@@ -54,9 +74,19 @@ def split_demands(data,
             else:
                 new_demands.append(vehicle_capacity)
             # updating index to sc map, like '110-52-1'
-            data.ind_to_sc_map[len(new_distance_matrix) - 1] = (
-                f'{data.ff}-{sc}-{iteration}'
-            )
+            if flag:
+                data.ind_to_sc_map[len(new_distance_matrix) - 1] = (
+                    f'{data.ff}-{sc}-{iteration}'
+                )
+            else:
 
-    return new_distance_matrix, new_demands
+                ind_to_sc_map[len(new_distance_matrix) - 1] = (
+                    f'{0}-{sc}-{iteration}'
+                )
+
+    if flag:
+        return new_distance_matrix, new_demands, data.ind_to_sc_map
+    else:
+        return new_distance_matrix, new_demands, ind_to_sc_map
+
 
