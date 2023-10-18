@@ -33,12 +33,14 @@ def initialize_split_list(individual: Individual,
     return split_list
 
 
-def split(individual: Individual, params: Params) -> list[list[int]]:
+def split(individual: Individual, params: Params,
+          max_nodes: int = 4) -> list[list[int]]:
     """
     this function splits whole route to sub routes for each vehicle
     :param individual:
     :param params:
-    :return: split route
+    :param max_nodes: the maximum number of nodes in each route
+    :return:
     """
     # initialization of the structures
     destination_info = initialize_split_list(individual, params)
@@ -63,7 +65,7 @@ def split(individual: Individual, params: Params) -> list[list[int]]:
                         destination_info[j]['dist_to_depot'])
             if (potential[i - 1] + cost < potential[j] and
                     load <= params.vehicle_capacity and
-                    len_of_route < 4):
+                    len_of_route < max_nodes):
                 potential[j] = potential[i - 1] + cost
                 pred[j] = i - 1
             if load > params.vehicle_capacity:
