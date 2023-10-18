@@ -80,7 +80,7 @@ def shaking(giant_tour: list[int], k: int) -> list[int]:
     """
     new_tour = giant_tour.copy()
     for _ in range(k):
-        i, j = sorted(random.sample(range(1, len(giant_tour) - 1), 2))
+        i, j = sorted(random.sample(range(1, len(giant_tour)), 2))
         new_tour = two_opt(new_tour, i, j)
 
     return new_tour
