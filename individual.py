@@ -57,7 +57,7 @@ class Individual:
     @staticmethod
     def fitness(cost: float) -> float:
         """
-        function that calculates fitness, we will maximize this function
+        function that calculates fitness, we need to maximize this function
         :param cost:
         :return:
         """
