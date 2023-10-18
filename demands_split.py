@@ -89,4 +89,5 @@ def split_demands(data=None, demands: list[float] = None,
     else:
         return new_distance_matrix, new_demands, ind_to_sc_map
 
+# TODO: try to split demands randomly
 
