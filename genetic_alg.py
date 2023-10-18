@@ -4,18 +4,28 @@ from individual import Individual
 
 
 class GeneticAlg:
-    def __init__(self, max_iter: int, max_population_size: int):
+    def __init__(self, max_iter: int, population_size: int,
+                 params):
         # algorithm parameters
         self.max_iter = max_iter
-        self.max_population_size = max_population_size
+        self.population_size = population_size
         ...
         self.population: list = []
+        self.params = params
 
-    def generate_initial_population(self) -> list:
-        pass
+    def generate_initial_population(self) -> list[Individual]:
+        population = []
+        for i in range(self.population_size):
+            indiv = Individual(self.params)
+            indiv.random_init()
+            indiv.divided_routes = split(indiv, self.params)
+            indiv.evaluate_individual()
 
-    # generating an offspring
-    def crossover(self, parent_1: list, parent_2: list) -> list:
+            population.append(indiv)
+
+        return population
+
+    def crossover(self, parent_1: Individual, parent_2: Individual) -> list:
         pass
 
     def select_parents(self) -> tuple[list, list]:
