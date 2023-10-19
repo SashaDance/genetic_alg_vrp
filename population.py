@@ -25,11 +25,10 @@ class Population:
             self.population[i] = indiv
 
     def rank_population(self) -> None:
-        # sorting list by descending of fitness
+        # sorting list by increasing of fitness
         self.population = dict(sorted(
             self.population.items(),
-            key=lambda item: item[1]._fitness,
-            reverse=True
+            key=lambda item: item[1]._fitness
         ))
 
     def selection(self) -> list[int]:
@@ -37,6 +36,7 @@ class Population:
         Fitness proportionate selection
         :return: keys of selected individuals
         """
+
         fitness_sum = 0
         for indiv in self.population.values():
             fitness_sum += indiv._fitness
@@ -48,16 +48,25 @@ class Population:
             prob = cum_sum / fitness_sum
             cum_sum_prob[key] = prob
 
+        elite_ind = self.population_size- self.elite_size
         # saving indices of elite members of population
         selection_res = [
-            key for key in list(self.population.keys())[:self.elite_size]
+            key for key in list(self.population.keys())[elite_ind:]
         ]
 
-        # selection of other members
-        for key in list(self.population.keys())[self.elite_size:]:
+        """
+        selection of other members
+        we need len(selection_res) to be = population_size, so do the i loop
+        in each iteration of i loop there will be chosen one of indices, since
+        probability of the last element (with the highest fitness score) is
+        always 1
+        """
+        for i in range(elite_ind):
             rand_prob = random.random()
-            if cum_sum_prob[key] >= rand_prob:
-                selection_res.append(key)
+            for key in self.population.keys():
+                if cum_sum_prob[key] >= rand_prob:
+                    selection_res.append(key)
+                    break
 
         return selection_res
 
@@ -109,25 +118,20 @@ class Population:
 
         return children
 
-    def add_individual(self, offspring: list) -> None:
-        # calculating fields of that individual
-        ...
-        self.population.append(offspring)
 
-    def select_survivors(self) -> None:
-        pass
+distance_matrix = [
+    [0, 1, 5, 4, 20],
+    [1, 0, 8, 10, 15],
+    [5, 8, 0, 9, 10],
+    [4, 10, 9, 0, 11],
+    [20, 15, 10, 11, 0]
+]
 
-# distance_matrix = [
-#     [0, 1, 5, 4, 20],
-#     [1, 0, 8, 10, 15],
-#     [5, 8, 0, 9, 10],
-#     [4, 10, 9, 0, 11],
-#     [20, 15, 10, 11, 0]
-# ]
-#
-# demands = [0, 1, 3, 4, 34]
-# params = Params(distance_matrix, 54, demands, 0)
-# instance = Population(1000, 20, params)
-# instance.generate_initial_population()
-# instance.rank_population()
-# print(len(instance.produce_offspring(instance.selection())))
+demands = [0, 1, 3, 4, 34]
+params = Params(distance_matrix, 54, demands, 0)
+instance = Population(100, 10, params)
+instance.generate_initial_population()
+instance.rank_population()
+print(len(instance.produce_offspring(instance.selection())))
+
+# TODO: implement changing population size
