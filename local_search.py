@@ -5,7 +5,7 @@ from params import Params
 """
 implementation of Variable Neighborhood Search
 This algorithm basicly reshuffles the giant tour to minimize its distance
-Giant tour is just an array of all nodes that needed are needed to be visited
+Giant tour is just an array of all nodes that are needed to be visited
 in our case it is a list of all sort centers
 """
 
