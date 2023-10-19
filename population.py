@@ -109,8 +109,10 @@ class Population:
             selection_res, len(selection_res) - self.elite_size
         )
         for i in range(len(breeding_pool) // 2):
-            parent_1_route = self.population[i]
-            parent_2_route = self.population[len(breeding_pool) - i - 1]
+            ind_1 = breeding_pool[i]
+            ind_2 = breeding_pool[len(breeding_pool) - ind_1 - 1]
+            parent_1_route = self.population[ind_1]
+            parent_2_route = self.population[ind_2]
             child_route = Population.crossover(
                 parent_1_route.giant_tour, parent_2_route.giant_tour
             )
