@@ -64,7 +64,26 @@ class Population:
 
     @staticmethod
     def crossover(parent_1: list, parent_2: list) -> list:
-        pass
+        """
+        OX crossover operator to breed parents
+        :param parent_1:
+        :param parent_2:
+        :return: a child (i.e. a solution)
+        """
+        first_cut_point = random.randint(1, len(parent_1))
+        second_cut_point = random.randint(first_cut_point, len(parent_1))
+
+        slice_ = parent_1[first_cut_point:second_cut_point]
+        print(first_cut_point, second_cut_point, slice_)
+        other_nodes = [node for node in parent_2 if node not in slice_]
+
+        child = (
+                other_nodes[:first_cut_point] +
+                slice_ +
+                other_nodes[first_cut_point:]
+        )
+
+        return child
 
     def add_individual(self, offspring: list) -> None:
         # calculating fields of that individual
