@@ -24,13 +24,13 @@ class Population:
 
             self.population[i] = indiv
 
-    def rank_population(self):
+    def rank_population(self) -> None:
         # sorting list by descending of fitness
-        self.population = sorted(
-            self.population,
+        self.population = dict(sorted(
+            self.population.items(),
             key=lambda item: item[1]._fitness,
             reverse=True
-        )
+        ))
 
     def selection(self) -> list[int]:
         """
@@ -50,11 +50,11 @@ class Population:
 
         # saving indices of elite members of population
         selection_res = [
-            key for key in self.population.keys()[:self.elite_size]
+            key for key in list(self.population.keys())[:self.elite_size]
         ]
 
         # selection of other members
-        for key in self.population.keys()[self.elite_size:]:
+        for key in list(self.population.keys())[self.elite_size:]:
             rand_prob = random.random()
             if cum_sum_prob[key] >= rand_prob:
                 selection_res.append(key)
@@ -73,7 +73,6 @@ class Population:
         second_cut_point = random.randint(first_cut_point, len(parent_1))
 
         slice_ = parent_1[first_cut_point:second_cut_point]
-        print(first_cut_point, second_cut_point, slice_)
         other_nodes = [node for node in parent_2 if node not in slice_]
 
         child = (
@@ -85,21 +84,22 @@ class Population:
         return child
 
     def produce_offspring(self, selection_res: list[int]) -> list[Individual]:
-        children = []
 
         # retain elite individuals from the current population
         children = [
             self.population[ind] for ind in selection_res[:self.elite_size]
         ]
-
         breeding_pool = random.sample(
             selection_res, len(selection_res) - self.elite_size
         )
         for i in range(len(breeding_pool) // 2):
+            parent_1_route = self.population[i]
+            parent_2_route = self.population[len(breeding_pool) - i - 1]
             child_route = Population.crossover(
-                breeding_pool[i], breeding_pool[len(breeding_pool) - i - 1]
+                parent_1_route.giant_tour, parent_2_route.giant_tour
             )
             # creating new instance of Individual class
+
             child = Individual(self.params)
             child.giant_tour = child_route
             child.divided_routes = split(child, self.params)
@@ -129,10 +129,5 @@ class Population:
 # params = Params(distance_matrix, 54, demands, 0)
 # instance = Population(1000, 20, params)
 # instance.generate_initial_population()
-# print(len(instance.population))
-
-# l1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-# l2 = [0, 9, 8, 7, 6, 5, 4, 3, 2, 1]
-#
-# res = Population.crossover(l1, l2)
-# print(res, len(res))
+# instance.rank_population()
+# print(len(instance.produce_offspring(instance.selection())))
