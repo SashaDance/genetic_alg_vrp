@@ -11,7 +11,6 @@ class Population:
                  elite_size: int,
                  params):
         self.population_size = population_size
-        ...
         self.population: dict[int, Individual] = {}
         self.elite_size = elite_size
         self.params = params
@@ -84,6 +83,31 @@ class Population:
         )
 
         return child
+
+    def produce_offspring(self, selection_res: list[int]) -> list[Individual]:
+        children = []
+
+        # retain elite individuals from the current population
+        children = [
+            self.population[ind] for ind in selection_res[:self.elite_size]
+        ]
+
+        breeding_pool = random.sample(
+            selection_res, len(selection_res) - self.elite_size
+        )
+        for i in range(len(breeding_pool) // 2):
+            child_route = Population.crossover(
+                breeding_pool[i], breeding_pool[len(breeding_pool) - i - 1]
+            )
+            # creating new instance of Individual class
+            child = Individual(self.params)
+            child.giant_tour = child_route
+            child.divided_routes = split(child, self.params)
+            child.evaluate_individual()
+
+            children.append(child)
+
+        return children
 
     def add_individual(self, offspring: list) -> None:
         # calculating fields of that individual
