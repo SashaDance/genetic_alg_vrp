@@ -108,7 +108,13 @@ class Population:
         breeding_pool = random.sample(
             selection_res, len(selection_res) - self.elite_size
         )
-        for i in range(len(breeding_pool) // 2):
+        """
+        you may think that there will be child duplicates, since from 
+        i = len(breeding_pool) we won't get new pairs of parents, but
+        we have crossover function which is stochastic, so
+        there is no problems with that
+        """
+        for i in range(len(breeding_pool)):
             ind_1 = breeding_pool[i]
             ind_2 = breeding_pool[len(breeding_pool) - ind_1 - 1]
             parent_1_route = self.population[ind_1]
@@ -117,7 +123,6 @@ class Population:
                 parent_1_route.giant_tour, parent_2_route.giant_tour
             )
             # creating new instance of Individual class
-
             child = Individual(self.params)
             child.giant_tour = child_route
             child.divided_routes = split(child, self.params)
