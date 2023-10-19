@@ -16,6 +16,10 @@ class Population:
         self.params = params
 
     def generate_initial_population(self) -> None:
+        """
+        generating population with random giant tour
+        :return:
+        """
         for i in range(self.population_size):
             indiv = Individual(self.params)
             indiv.random_init()
@@ -25,7 +29,10 @@ class Population:
             self.population[i] = indiv
 
     def rank_population(self) -> None:
-        # sorting list by increasing of fitness
+        """
+        sorting list by increasing of fitness
+        :return:
+        """
         self.population = dict(sorted(
             self.population.items(),
             key=lambda item: item[1]._fitness
