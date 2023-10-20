@@ -1,9 +1,11 @@
 import random
+from copy import deepcopy
 
 from local_search import local_search
 from split import split
 from individual import Individual
 from params import Params
+
 
 
 class Population:
@@ -102,7 +104,7 @@ class Population:
     def produce_offspring(self, selection_res: list[int]) -> list[Individual]:
 
         # retain elite individuals from the current population
-        children = [
+        offspring = [
             self.population[ind] for ind in selection_res[:self.elite_size]
         ]
         breeding_pool = random.sample(
@@ -128,9 +130,34 @@ class Population:
             child.divided_routes = split(child, self.params)
             child.evaluate_individual()
 
-            children.append(child)
+            offspring.append(child)
 
-        return children
+        return offspring
+
+    def mutate(self, indiv: Individual, mut_rate: float = 0.01) -> Individual:
+        """
+        this method implements mutation of individual
+        with prob = mut_rate 2 nodes will be swapped in giant tour
+        mutation is needed for exploration to avoid local extrema
+        :param indiv:
+        :param mut_rate:
+        :return: mutated individual
+        """
+        mut_indiv = deepcopy(indiv)
+        for i in range(1, len(mut_indiv.giant_tour)):
+            if random.random() < mut_rate:
+                j = random.randint(1, len(mut_indiv.giant_tour) - 1)
+
+                _ = mut_indiv.giant_tour[i]
+                mut_indiv.giant_tour[i] = mut_indiv.giant_tour[j]
+                mut_indiv.giant_tour[j] = _
+
+        # updating divided routes
+        mut_indiv.divided_routes = split(mut_indiv, self.params)
+
+        return mut_indiv
+
+
 
 
 distance_matrix = [
