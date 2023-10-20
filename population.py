@@ -5,16 +5,19 @@ from local_search import local_search
 from split import split
 from individual import Individual
 from params import Params
+from get_data import GetData
 
 
 
 class Population:
-    def __init__(self, population_size: int,
+    def __init__(self, params,
+                 population_size: int,
                  elite_size: int,
-                 params):
+                 mut_rate: float = 0.01):
         self.population_size = population_size
         self.population: dict[int, Individual] = {}
         self.elite_size = elite_size
+        self.mut_rate = mut_rate
         self.params = params
 
     def generate_initial_population(self) -> None:
@@ -101,7 +104,31 @@ class Population:
 
         return child
 
-    def produce_offspring(self, selection_res: list[int]) -> list[Individual]:
+    def mutate(self, indiv: Individual) -> Individual:
+        """
+        this method implements mutation of individual
+        with prob = mut_rate 2 nodes will be swapped in giant tour
+        mutation is needed for exploration to avoid local extrema
+        :param indiv:
+        :param mut_rate: mutation rate
+        :return: mutated individual
+        """
+        mut_indiv = deepcopy(indiv)
+        for i in range(1, len(mut_indiv.giant_tour)):
+            if random.random() < self.mut_rate:
+                j = random.randint(1, len(mut_indiv.giant_tour) - 1)
+
+                _ = mut_indiv.giant_tour[i]
+                mut_indiv.giant_tour[i] = mut_indiv.giant_tour[j]
+                mut_indiv.giant_tour[j] = _
+
+        # updating divided routes
+        mut_indiv.divided_routes = split(mut_indiv, self.params)
+
+        return mut_indiv
+
+    def produce_offspring(self,
+                          selection_res: list[int]) -> dict[int, Individual]:
 
         # retain elite individuals from the current population
         offspring = [
@@ -130,49 +157,34 @@ class Population:
             child.divided_routes = split(child, self.params)
             child.evaluate_individual()
 
+            child = self.mutate(child)
             offspring.append(child)
 
+        # creating dict of list
+        offspring = dict(((i, offspring[i]) for i in range(len(offspring))))
         return offspring
 
-    def mutate(self, indiv: Individual, mut_rate: float = 0.01) -> Individual:
-        """
-        this method implements mutation of individual
-        with prob = mut_rate 2 nodes will be swapped in giant tour
-        mutation is needed for exploration to avoid local extrema
-        :param indiv:
-        :param mut_rate:
-        :return: mutated individual
-        """
-        mut_indiv = deepcopy(indiv)
-        for i in range(1, len(mut_indiv.giant_tour)):
-            if random.random() < mut_rate:
-                j = random.randint(1, len(mut_indiv.giant_tour) - 1)
-
-                _ = mut_indiv.giant_tour[i]
-                mut_indiv.giant_tour[i] = mut_indiv.giant_tour[j]
-                mut_indiv.giant_tour[j] = _
-
-        # updating divided routes
-        mut_indiv.divided_routes = split(mut_indiv, self.params)
-
-        return mut_indiv
-
-
-
-
-distance_matrix = [
-    [0, 1, 5, 4, 20],
-    [1, 0, 8, 10, 15],
-    [5, 8, 0, 9, 10],
-    [4, 10, 9, 0, 11],
-    [20, 15, 10, 11, 0]
-]
-
-demands = [0, 1, 3, 4, 34]
-params = Params(distance_matrix, 54, demands, 0)
-instance = Population(100, 10, params)
-instance.generate_initial_population()
-instance.rank_population()
-print(len(instance.produce_offspring(instance.selection())))
-
 # TODO: implement changing population size
+
+
+if __name__ == '__main__':
+
+    data = GetData(110)
+    distance_matrix, demands, ind_to_sc_map = data.get_data()
+    params = Params(distance_matrix, 54, demands, 0)
+    instance = Population(params, 100, 10)
+    instance.generate_initial_population()
+    for i in range(200):
+        print(i)
+        instance.rank_population()
+        selection_res = instance.selection()
+        last_key = list(instance.population.keys())[-1]
+        print(instance.population[last_key].cost)
+        instance.population = instance.produce_offspring(selection_res)
+
+    instance.rank_population()
+    last_key = list(instance.population.keys())[-1]
+    print(instance.population[last_key].cost)
+    print(instance.population[last_key].giant_tour)
+
+
