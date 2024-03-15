@@ -8,7 +8,6 @@ from params import Params
 from get_data import GetData
 
 
-
 class Population:
     def __init__(self, params,
                  population_size: int,
@@ -174,7 +173,7 @@ if __name__ == '__main__':
     params = Params(distance_matrix, 54, demands, 0)
     instance = Population(params, 100, 10)
     instance.generate_initial_population()
-    for i in range(200):
+    for i in range(500):
         print(i)
         instance.rank_population()
         selection_res = instance.selection()
@@ -186,5 +185,4 @@ if __name__ == '__main__':
     last_key = list(instance.population.keys())[-1]
     print(instance.population[last_key].cost)
     print(instance.population[last_key].giant_tour)
-
 

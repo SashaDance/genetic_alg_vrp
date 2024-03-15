@@ -92,18 +92,27 @@ def vns(params: Params, max_iter=100) -> list[int]:
     """
     the main alg
     :param params: look at the Params class
-    :param max_iter: 
+    :param max_iter: max iterations without improvement
     :return: optimized giant tou
     """
     i = 1
     while i <= max_iter:
         k_tour = shaking(giant_tour, i)
         new_tour = local_search(k_tour, distance_matrix)
-        if (calc_distance(new_tour, distance_matrix) <
-                calc_distance(giant_tour, distance_matrix)):
+        new_tour_dist = calc_distance(new_tour, distance_matrix)
+        if new_tour_dist < calc_distance(giant_tour, distance_matrix):
             giant_tour = new_tour
             i = 1
         else:
             i += 1
 
     return giant_tour
+
+
+if __name__ == '__main__':
+    data = GetData(110)
+    distance_matrix, demands, ind_to_sc_map = data.get_data()
+    params = Params(distance_matrix, 54, demands, 0)
+    res = vns(params)
+    print(calc_distance(res, distance_matrix))
+    print(res)

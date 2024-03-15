@@ -9,16 +9,13 @@ from demands_split import split_demands
 ff_id = 110
 
 data = GetData(ff_id)
-distance_matrix, demands, ind_to_sc_map = split_demands(
-    distance_matrix=data.get_distance_matrix(),
-    demands=data.get_demands()
-)
+distance_matrix, demands, ind_to_sc_map = data.get_data()
 
 vehicle_capacity = 54
 
 params = Params(distance_matrix, vehicle_capacity, demands, 0)
 indiv = Individual(params)
-indiv.giant_tour = vns(params)
+indiv.giant_tour = vns(params, max_iter=30)
 
 indiv.divided_routes = split(indiv, params)
 indiv.evaluate_individual()
